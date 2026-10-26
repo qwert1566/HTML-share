@@ -4,7 +4,7 @@ const express = require("express");
 
 const app = express();
 
-const d = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+const d = btoa(encodeURIComponent(fs.readFileSync(path.join(__dirname, "index.html"), "utf8")));
 app.use((req, res) => {
     if (req.query.c) {
         try {
@@ -14,7 +14,8 @@ app.use((req, res) => {
         }
     } else {
         if (!d) return res.status(500).send("읽기 실패");
-        res.redirect(307, `${req.path || "/"}?${new URLSearchParams({ ...req.query, c: btoa(encodeURIComponent(d)) })}`);
+        // 임시 리다이렉트는 클라이언트에서 캐싱되지 않음ㅎㅎ
+        res.redirect(307, `${req.path || "/"}?${new URLSearchParams({ ...req.query, c: d })}`);
     }
 });
 
